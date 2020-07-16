@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { gql } from "apollo-boost";
 import { useQuery } from "@apollo/react-hooks";
 import styled from "styled-components";
+import { Link } from "react-router-dom";
 
 const GET_MOVIE = gql`
   query getMovie($id: Int!) {
@@ -12,6 +13,10 @@ const GET_MOVIE = gql`
       language
       rating
       description_intro
+    }
+    suggestions(id: $id) {
+      id
+      medium_cover_image
     }
   }
 `;
@@ -27,7 +32,7 @@ const Container = styled.div`
 `;
 
 const Column = styled.div`
-  margin-left: 10px;
+  margin: 0 10px;
   width: 50%;
 `;
 
@@ -47,8 +52,9 @@ const Description = styled.p`
 
 const Poster = styled.div`
   background-image: url(${(props) => props.bg});
-  width: 25%;
-  height: 60%;
+  width: 100%;
+  height: 100%;
+  margin-bottom: 5px;
   background-color: transparent;
   background-size: cover;
   background-position: center center;
@@ -66,6 +72,31 @@ const CloseButton = styled.div`
   }
 `;
 
+const RightImages = styled.div`
+  margin: 0 10px;
+  width: 25%;
+  height: 80%;
+  display: flex;
+  flex-direction: column;
+`;
+
+const Suggestions = styled.div`
+  width: 100%;
+  min-height: 20%;
+  display: flex;
+  justify-content: space-around;
+  & > * {
+    width: 22%;
+  }
+`;
+
+const Suggestion = styled.div`
+  background-image: url(${(props) => props.bg});
+  background-size: cover;
+  width: 100%;
+  height: 100%;
+`;
+
 export default () => {
   const { id } = useParams();
   const { loading, data } = useQuery(GET_MOVIE, {
@@ -75,18 +106,21 @@ export default () => {
     <Container>
       <Column>
         <Title>{loading ? "loading" : data.movie.title}</Title>
-        {!loading && data.movie && (
-          <>
-            <Subtitle>
-              {data.movie.language} · {data.movie.rating}
-            </Subtitle>
-            <Description>{data.movie.description_intro}</Description>
-          </>
-        )}
+        <Subtitle>
+          {data?.movie?.language} · {data?.movie?.rating}
+        </Subtitle>
+        <Description>{data?.movie?.description_intro}</Description>
       </Column>
-      <Poster
-        bg={data && data.movie ? data.movie.medium_cover_image : ""}
-      ></Poster>
+      <RightImages>
+        <Poster bg={data?.movie ? data.movie.medium_cover_image : ""}></Poster>
+        <Suggestions>
+          {data?.suggestions?.map((s) => (
+            <Link to={`/${s.id}`} key={s.id}>
+              <Suggestion bg={s.medium_cover_image} />
+            </Link>
+          ))}
+        </Suggestions>
+      </RightImages>
       <CloseButton onClick={() => (window.location.href = "/#/")}>
         X
       </CloseButton>
