@@ -128,7 +128,7 @@ export default () => {
           ))}
         </Suggestions>
       </RightImages>
-      <CloseButton onClick={() => (window.location.href = "/#/")}>
+      <CloseButton onClick={() => (window.location.href = "./#/")}>
         X
       </CloseButton>
     </Container>
